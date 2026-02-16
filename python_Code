@@ -1,0 +1,46 @@
+#import libraries in python
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the dataset
+df = pd.read_csv('marketing_campaign_dataset 01.csv')
+
+# Data cleaning: Convert Acquisition_Cost to numeric (remove $ and ,)
+df['Acquisition_Cost'] = df['Acquisition_Cost'].replace('[\$,]', '', regex=True).astype(float)
+
+# Convert Date to datetime
+df['Date'] = pd.to_datetime(df['Date'], dayfirst=True)
+
+# Basic stats
+total_records = len(df)
+avg_conversion_rate = df['Conversion_Rate'].mean()
+total_acquisition_cost = df['Acquisition_Cost'].sum()
+avg_roi = df['ROI'].mean()
+avg_engagement = df['Engagement_Score'].mean()
+
+# Performance by Campaign Type
+campaign_performance = df.groupby('Campaign_Type').agg({
+    'Conversion_Rate': 'mean',
+    'Acquisition_Cost': 'sum',
+    'ROI': 'mean',
+    'Engagement_Score': 'mean',
+    'Clicks': 'sum',
+    'Impressions': 'sum'
+}).sort_values(by='Conversion_Rate', ascending=False)
+
+# Performance by Channel Used
+channel_performance = df.groupby('Channel_Used').agg({
+    'Conversion_Rate': 'mean',
+    'Acquisition_Cost': 'sum',
+    'ROI': 'mean',
+    'Engagement_Score': 'mean'
+}).sort_values(by='ROI', ascending=False)
+
+# Monthly Trends
+df['Month'] = df['Date'].dt.to_period('M')
+monthly_trends = df.groupby('Month').agg({
+    'Conversion_Rate': 'mean',
+    'Engagement_Score': 'mean',
+    'Acquisition_Cost': 'sum'
+}).reset_index()
+
